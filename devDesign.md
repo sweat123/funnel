@@ -19,7 +19,7 @@
 
 架构设计图
 
-![http://or0f3pi7r.bkt.clouddn.com/18-7-26/60842597.jpg](http://or0f3pi7r.bkt.clouddn.com/18-7-26/60842597.jpg)
+![http://or0f3pi7r.bkt.clouddn.com/18-7-26/65804796.jpg](http://or0f3pi7r.bkt.clouddn.com/18-7-26/65804796.jpg)
 
 通过使用`Kafka`生产者和消费者的客户端，都接入`funnel`拦截器，`funnel`拦截器会对生产者生产的每条消息和消费者消费的每条消息进行处理，这个处理过程会是异步进行的，尽可能的不影响`kafka`本身的性能；
 每条被`funnel inteceptor`处理的消息，都会被计算分配到一个时间桶内，每个时间桶内会维护消息的个数，平均延迟等信息。这些信息最后会被发送到一个专门用于审计的`Topic`，审计系统会从
