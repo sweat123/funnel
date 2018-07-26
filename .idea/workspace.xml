@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="0400ba64-41ed-41ca-8842-6eaeaa237bb0" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/devDesign.md" beforeDir="false" afterPath="$PROJECT_DIR$/devDesign.md" afterDir="false" />
-    </list>
+    <list default="true" id="0400ba64-41ed-41ca-8842-6eaeaa237bb0" name="Default" comment="" />
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="$PROJECT_DIR$/target/" />
     <ignored path="$PROJECT_DIR$/funnel-client/target/" />
@@ -234,16 +231,15 @@
       <updated>1532530103539</updated>
       <workItem from="1532530109005" duration="1704000" />
       <workItem from="1532531992630" duration="2149000" />
-      <workItem from="1532566974744" duration="878000" />
+      <workItem from="1532566974744" duration="919000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="4731000" />
+    <option name="totallyTimeSpent" value="4772000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info anchor="right" id="Palette" order="3" />
       <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" />
