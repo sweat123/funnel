@@ -17,7 +17,7 @@
 
 ## 详细设计
 
-架构设计图
+整体架构设计图
 
 ![http://or0f3pi7r.bkt.clouddn.com/18-7-26/38709579.jpg](http://or0f3pi7r.bkt.clouddn.com/18-7-26/38709579.jpg)
 
@@ -25,4 +25,47 @@
 每条被`funnel interceptor`处理的消息，都会被计算分配到一个时间桶内，每个时间桶内会维护消息的个数，平均延迟等信息。这些信息最后会被发送到一个专门用于审计的`Topic`，审计系统会从
 审计`Topic`读取数据，将元数据导入到`elsticsearch`，最后通过`grafana`展示元数据。
 
-TODO
+### 时间桶概念
+
+`funnel interceptor`设计基于时间桶的概念。每一个时间戳都能被确定到一个唯一的时间桶内，时间桶的起始时间:`timestamp - timestamp%时间桶间隔`。
+
+时间桶的概念可以简单的理解为下图:
+
+![http://or0f3pi7r.bkt.clouddn.com/18-7-26/14165084.jpg](http://or0f3pi7r.bkt.clouddn.com/18-7-26/14165084.jpg)
+
+1. 一个时间桶对应一个或多个`record`。
+2. 时间桶会维护这段时间区间内，消息的个数等元数据。
+3. 每一个`topic`的消息有相应的时间桶（可以简单的理解为当前时间戳和`Record Topic`决定了时间桶）。
+4. 当前时间戳已经不在前一个时间桶时，前一个时间桶会被发送到一个审计`Topic`。
+
+### Consumer Interceptor 设计
+
+`KafkaConsumer`每次调用`poll`方法，从`topic`获取到一批`record`。每一个`record`都会经过`Consumer Interceptor`。对于每一个`record`，`funnel interceptor`都会经过一下几步:
+
+1. 根据当前时间戳，计算当前的`record`应该落在哪一个时间桶内。
+2. `record`携带的时间戳和当前时间戳相减，这个差值作为消息的延迟（可以理解为消息从落到`kafka`服务器，到被消费者消费这段时间的延迟）。
+3. 一个时间桶对应多个`record`，时间桶内会维护消息的平均延迟、`C99`延迟、`C95`延迟、最大延迟。
+
+整个工作过程如下图:
+
+![http://or0f3pi7r.bkt.clouddn.com/18-7-26/17158516.jpg](http://or0f3pi7r.bkt.clouddn.com/18-7-26/17158516.jpg)
+
+### Producer Interceptor 设计
+
+和消费者拦截器类似，所有`KafkaProducer`发送的`record`都会经过`Producer Interceptor`，基于`Producer Interceptor`，我们也能够做到对消息的审计。但是生产者的拦截器审计方式和消费者方面会有所不同。
+
+生产者发送的消息并不是带有时间戳的（除非发送的时候，主动带上时间戳），所以生产者这部分是不考虑延迟的。也就是说从`KafkaProducer`到`Kafka Broker`这部分的延迟时被我们忽略了。
+
+在生产者的拦截器内，我们同样使用了时间桶。但是生产者方面的时间桶只会保存消息的个数。所以生产者部分的设计还是比较简单的。
+
+### 设计服务
+
+生产者和消费者拦截器审计得到的时间桶，都会被发送到一个`Audit Topic`。审计服务会不断消费`Audit Topic`，根据时间桶所带有的元数据，进行一定的转化后，导入`elsticsearch`;
+
+### 查看
+
+使用`grafana`将`elsticsearch`作为数据源，展示某段时间内生产者发送的`record`个数，消费者消费的`record`个数以及相应的延迟数据。
+
+# 其它
+
+如果有任何疑问，可以提`issues`，提出宝贵的意见！
