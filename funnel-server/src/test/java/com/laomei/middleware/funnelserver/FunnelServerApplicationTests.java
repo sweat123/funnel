@@ -1,4 +1,4 @@
-package com.qunhe.middleware.funnelserver;
+package com.laomei.middleware.funnelserver;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
