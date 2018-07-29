@@ -1,0 +1,5 @@
+com\laomei\funnel\client\interceptor\FunnelConsumerInterceptor.class
+com\laomei\funnel\client\core\AuditService.class
+com\laomei\funnel\client\interceptor\FunnelProducerInterceptor.class
+com\laomei\funnel\client\core\TimeBucket.class
+com\laomei\funnel\client\util\BucketUtil.class

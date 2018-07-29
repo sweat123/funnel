@@ -1,6 +1,6 @@
 package com.laomei.funnel.client.interceptor;
 
-import com.laomei.funnel.client.core.AuditService;
+import com.laomei.funnel.client.core.ProducerAuditService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerInterceptor;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -14,7 +14,7 @@ import java.util.Map;
 @Slf4j
 public class FunnelProducerInterceptor<K, V> implements ProducerInterceptor<K, V> {
 
-    private AuditService<K, V> auditService;
+    private ProducerAuditService<K, V> auditService;
 
     public ProducerRecord<K, V> onSend(ProducerRecord<K, V> record) {
         auditService.audit(record);
@@ -33,6 +33,6 @@ public class FunnelProducerInterceptor<K, V> implements ProducerInterceptor<K, V
     }
 
     public void configure(Map<String, ?> configs) {
-        auditService = new AuditService<>(configs);
+        auditService = new ProducerAuditService<>(configs);
     }
 }

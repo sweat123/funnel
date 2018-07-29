@@ -1,6 +1,6 @@
 package com.laomei.funnel.client.interceptor;
 
-import com.laomei.funnel.client.core.AuditService;
+import com.laomei.funnel.client.core.ConsumerAuditService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerInterceptor;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -15,7 +15,7 @@ import java.util.Map;
 @Slf4j
 public class FunnelConsumerInterceptor<K, V> implements ConsumerInterceptor<K, V> {
 
-    private AuditService<K, V> auditService;
+    private ConsumerAuditService<K, V> auditService;
 
     public ConsumerRecords<K, V> onConsume(ConsumerRecords<K, V> records) {
         auditService.audit(records);
@@ -34,6 +34,6 @@ public class FunnelConsumerInterceptor<K, V> implements ConsumerInterceptor<K, V
     }
 
     public void configure(Map<String, ?> configs) {
-        auditService = new AuditService<>(configs);
+        auditService = new ConsumerAuditService<>(configs);
     }
 }
