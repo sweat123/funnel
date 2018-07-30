@@ -11,6 +11,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ThreadFactory;
@@ -98,7 +99,22 @@ public class ProducerAuditService<K, V> implements AutoCloseable {
             auditor = new ProducerAuditor<>(timeBucketInterval);
             auditorForTopic.putIfAbsent(topic, auditor);
         }
-        auditor.audit(record);
+        boolean needReport = auditor.audit(record);
+        if (needReport) {
+            val waitForReportTimeBuckets = auditor.getAndResetWaitReportedTimeBuckets();
+            if (!waitForReportTimeBuckets.isEmpty()) {
+                report(topic, waitForReportTimeBuckets);
+            }
+        }
+    }
+
+    /**
+     * report timeBuckets to audit topic
+     * @param topic topic for record
+     * @param timeBuckets time buckets
+     */
+    private void report(String topic, Set<TimeBucket> timeBuckets) {
+        //TODO: report buckets
     }
 
     private static class ProducerRecordEventHandler<K, V> implements EventHandler<RecordEntry<ProducerRecord<K, V>>> {
