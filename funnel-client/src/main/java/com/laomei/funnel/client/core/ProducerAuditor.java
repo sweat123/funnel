@@ -52,7 +52,7 @@ public class ProducerAuditor<K, V> {
      *
      */
     private boolean isTriggerRecord(ProducerRecord<K, V> record) {
-        return record.key() == null && record.value() == null;
+        return record.key() == null && record.value() == null && record.timestamp() == 0L;
     }
 
     private TimeBucket getTimeBucket(long timestamp) {
