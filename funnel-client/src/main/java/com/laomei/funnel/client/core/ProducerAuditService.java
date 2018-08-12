@@ -18,9 +18,7 @@ import java.net.UnknownHostException;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 import static com.laomei.funnel.client.core.ConfigConstants.*;
@@ -31,11 +29,13 @@ import static com.laomei.funnel.client.core.ConfigConstants.*;
 @Slf4j
 public class ProducerAuditService<K, V> implements AutoCloseable {
 
-    private long timeBucketInterval;
+    private final long timeBucketInterval;
 
     private AuditServer auditServer;
 
     private final MessageReporter messageReporter;
+
+    private final ScheduledExecutorService singleScheduledThread;
 
     private final Disruptor<RecordEntry<ProducerRecord<K, V>>> disruptor;
 
@@ -65,6 +65,11 @@ public class ProducerAuditService<K, V> implements AutoCloseable {
         }
         Objects.requireNonNull(service, "funnel.audit.client.service must be set for funnel interceptor;");
         this.auditServer = new AuditServer(service, ip);
+        this.singleScheduledThread = Executors.newScheduledThreadPool(1, r -> {
+            Thread thread = new Thread(r, "funnel-producer-trigger-thread");
+            thread.setDaemon(true);
+            return thread;
+        });
         this.disruptor = new Disruptor<>(
                 new RecordEventFactory<>(),
                 16384,
@@ -78,6 +83,7 @@ public class ProducerAuditService<K, V> implements AutoCloseable {
         this.disruptor.handleEventsWith(new ProducerRecordEventHandler<>(this));
         this.disruptor.start();
         this.auditorForTopic = new ConcurrentHashMap<>();
+        startSendTriggerRecord();
     }
 
     /**
@@ -92,6 +98,7 @@ public class ProducerAuditService<K, V> implements AutoCloseable {
     public void close() throws Exception {
         disruptor.shutdown(30, TimeUnit.SECONDS);
         messageReporter.close();
+        singleScheduledThread.shutdownNow();
     }
 
     /**
@@ -124,6 +131,16 @@ public class ProducerAuditService<K, V> implements AutoCloseable {
                 .map(timeBucket -> new AuditMessage(topic, (byte) 0, null, auditServer, timeBucket))
                 .collect(Collectors.toList());
         messageReporter.report(auditMessages);
+    }
+
+    private void startSendTriggerRecord() {
+        singleScheduledThread.scheduleWithFixedDelay(this::sendTriggerRecord, timeBucketInterval, timeBucketInterval, TimeUnit.MILLISECONDS);
+    }
+
+    private void sendTriggerRecord() {
+        for (String topic : auditorForTopic.keySet()) {
+            audit(new ProducerRecord<>(topic, null, 0L, null, null));
+        }
     }
 
     private static class ProducerRecordEventHandler<K, V> implements EventHandler<RecordEntry<ProducerRecord<K, V>>> {
