@@ -29,6 +29,8 @@ public class FunnelProducerInterceptor<K, V> implements ProducerInterceptor<K, V
             auditService.close();
         } catch (Exception e) {
             log.warn("close auditService failed!", e);
+        } finally {
+            auditService = null;
         }
     }
 

@@ -5,7 +5,6 @@
 
     <groupId>com.laomei.middleware</groupId>
     <artifactId>funnel-server</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>funnel-server</name>

@@ -1,4 +1,4 @@
-package com.laomei.funnel.client.core;
+package com.laomei.funnel.common.disruptor;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

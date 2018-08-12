@@ -1,4 +1,4 @@
-package com.laomei.funnel.client.core;
+package com.laomei.funnel.common.data;
 
 import lombok.Data;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;

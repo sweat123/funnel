@@ -1,5 +1,6 @@
 package com.laomei.funnel.client.core;
 
+import com.laomei.funnel.common.data.TimeBucket;
 import lombok.val;
 import org.apache.kafka.clients.producer.ProducerRecord;
 
