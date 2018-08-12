@@ -1,8 +1,7 @@
 package com.laomei.funnel.client.core;
 
 import com.laomei.funnel.common.data.TimeBucket;
-import lombok.val;
-import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -11,55 +10,54 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * @author laomei on 2018/7/29 15:57
+ * @author laomei on 2018/8/12 20:17
  */
-public class ProducerAuditor<K, V> {
+public class ConsumerAuditor<K, V> {
+
+    private Map<Long, TimeBucket> timeBucketMap;
 
     private final long timeBucketInterval;
 
     private final AtomicBoolean needReport;
 
-    private Map<Long, TimeBucket> timeBucketMap;
-
     private Set<TimeBucket> waitReportedTimeBuckets;
 
-    public ProducerAuditor(long timeBucketInterval) {
+    public ConsumerAuditor(long timeBucketInterval) {
         this.timeBucketInterval = timeBucketInterval;
         this.timeBucketMap = new HashMap<>();
         this.needReport = new AtomicBoolean(false);
         this.waitReportedTimeBuckets = new HashSet<>();
     }
 
-    public boolean audit(ProducerRecord<K, V> record) {
-        val currentTimestamp = System.currentTimeMillis();
-        val timeBucket = getTimeBucket(currentTimestamp);
+    public boolean audit(ConsumerRecord<K, V> record) {
+        long currentTimestamp = System.currentTimeMillis();
+        TimeBucket timeBucket = getTimeBucket(currentTimestamp);
         if (!isTriggerRecord(record)) {
+            long recordTimestamp = record.timestamp();
+            long latency = currentTimestamp - recordTimestamp;
+            timeBucket.getStats().addValue(latency);
             timeBucket.setMsgCount(timeBucket.getMsgCount() + 1);
         }
         return needReport.getAndSet(false);
     }
 
     public Set<TimeBucket> getAndResetWaitReportedTimeBuckets() {
-        val timeBuckets = new HashSet<TimeBucket>(waitReportedTimeBuckets);
+        Set<TimeBucket> timeBuckets = new HashSet<>(waitReportedTimeBuckets);
         waitReportedTimeBuckets = new HashSet<>();
         return timeBuckets;
     }
 
-    /**
-     * if record is trigger record return true, else false;
-     *
-     * trigger record is used for triggering any time bucket need report;
-     *
-     */
-    private boolean isTriggerRecord(ProducerRecord<K, V> record) {
-        return record.key() == null && record.value() == null;
+    private boolean isTriggerRecord(ConsumerRecord<K, V> record) {
+        return record.key() == null
+                && record.value() == null
+                && record.offset() == -1
+                && record.partition() == -1;
     }
 
     private TimeBucket getTimeBucket(long timestamp) {
-        val bucketBegin = getTimeBucketBegin(timestamp);
+        long bucketBegin = getTimeBucketBegin(timestamp);
         TimeBucket timeBucket = timeBucketMap.get(bucketBegin);
         if (timeBucket == null) {
-            //new bucket is created, so buckets which begin time is before current bucket need to be reported firstly;
             resetTimeBucketMap();
             timeBucket = new TimeBucket(bucketBegin, bucketBegin + timeBucketInterval);
             timeBucketMap.put(bucketBegin, timeBucket);
