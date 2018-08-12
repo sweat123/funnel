@@ -139,7 +139,7 @@ public class ProducerAuditService<K, V> implements AutoCloseable {
 
     private void sendTriggerRecord() {
         for (String topic : auditorForTopic.keySet()) {
-            audit(new ProducerRecord<>(topic, null, 0L, null, null));
+            audit(new ProducerRecord<>(topic, null, 0L, null, null, null));
         }
     }
 
