@@ -1,0 +1,16 @@
+spring:
+  data:
+    elasticsearch:
+      cluster-nodes: localhost: 9300
+  kafka:
+    consumer:
+      auto-offset-reset: latest
+      max-poll-records: 500
+      heartbeat-interval: 3000
+      bootstrap-servers:
+        - localhost:9092
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
+    listener:
+      ack-mode: batch
+      concurrency: 1
