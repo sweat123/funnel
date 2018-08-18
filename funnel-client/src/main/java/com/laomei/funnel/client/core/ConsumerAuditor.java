@@ -30,9 +30,9 @@ public class ConsumerAuditor<K, V> {
     }
 
     public boolean audit(ConsumerRecord<K, V> record) {
-        long currentTimestamp = System.currentTimeMillis();
-        TimeBucket timeBucket = getTimeBucket(currentTimestamp);
         if (!isTriggerRecord(record)) {
+            long currentTimestamp = System.currentTimeMillis();
+            TimeBucket timeBucket = getTimeBucket(currentTimestamp);
             long recordTimestamp = record.timestamp();
             long latency = currentTimestamp - recordTimestamp;
             timeBucket.getStats().addValue(latency);

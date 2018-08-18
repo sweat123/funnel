@@ -1,7 +1,10 @@
 package com.laomei.middleware.funnelserver;
 
 import lombok.Data;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
 
 /**
  * the dto of the audit message transport in audit topic
@@ -12,6 +15,10 @@ import org.springframework.data.elasticsearch.annotations.Document;
 public class AuditMetric {
 
     private static final long serialVersionUID = -1L;
+
+    @Id
+    @Field(type = FieldType.Auto)
+    private Long id;
 
     private String topic;
 

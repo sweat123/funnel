@@ -11,6 +11,7 @@ import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.dsl.Disruptor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -18,7 +19,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-import static com.laomei.funnel.client.core.ConfigConstants.AUDIT_CENTER_TOPIC;
+import static com.laomei.funnel.client.core.FunnelConfigs.AUDIT_CENTER_TOPIC;
 
 /**
  * report audit message to audit center
@@ -40,10 +41,17 @@ public class MessageReporter implements AutoCloseable {
 
     public MessageReporter(Map<String, ?> configs) {
         val auditProducerConfigs = new HashMap<String, Object>();
-        auditProducerConfigs.put(
-                ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
-                configs.get(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG)
-        );
+        Object auditBootstrap = configs.get(FunnelConfigs.AUDIT_KAFKA_BOOTSTRAPS);
+        if (auditBootstrap == null || "".equals((String) auditBootstrap)) {
+            auditBootstrap = configs.get(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG);
+        }
+        if (auditBootstrap == null || "".equals((String) auditBootstrap)) {
+            auditBootstrap = configs.get(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG);
+        }
+        if (auditBootstrap == null || "".equals((String) auditBootstrap)) {
+            throw new IllegalArgumentException("funnel audit kafka producer bootstrap must be set;");
+        }
+        auditProducerConfigs.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, auditBootstrap);
         auditProducerConfigs.put(
                 ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
                 "org.apache.kafka.common.serialization.StringSerializer"
@@ -80,6 +88,9 @@ public class MessageReporter implements AutoCloseable {
      * @param auditMessages audit messages
      */
     private void reportToAuditCenter(Collection<AuditMessage> auditMessages) {
+        if (auditMessages.isEmpty()) {
+            return;
+        }
         for (val message : auditMessages) {
             try {
                 String serializedMsg = JsonUtil.serializeAuditMessage(message.convertToDto());
