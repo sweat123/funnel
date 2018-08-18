@@ -21,7 +21,7 @@ import java.util.Set;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
-import static com.laomei.funnel.client.core.ConfigConstants.*;
+import static com.laomei.funnel.client.core.FunnelConfigs.*;
 
 /**
  * @author laomei on 2018/7/28 21:35
@@ -52,7 +52,7 @@ public class ProducerAuditService<K, V> implements AutoCloseable {
 
     public ProducerAuditService(Map<String, ?> configs) {
         this.messageReporter = new MessageReporter(configs);
-        this.timeBucketInterval = Long.valueOf(String.valueOf(configs.get(TIME_BUCKET_INTERVAL)));
+        this.timeBucketInterval = Long.valueOf(String.valueOf(configs.get(TIME_BUCKET_INTERVAL_MS)));
         String service = String.valueOf(configs.get(AUDIT_CLIENT_SERVICE));
         String ip = String.valueOf(configs.get(AUDIT_CLIENT_IP));
         if (Objects.isNull(ip) || "".equals(ip)) {

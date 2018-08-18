@@ -3,9 +3,9 @@ package com.laomei.funnel.client.core;
 /**
  * @author laomei on 2018/7/29 16:12
  */
-public class ConfigConstants {
+public class FunnelConfigs {
 
-    public static final String TIME_BUCKET_INTERVAL = "fennel.time.bucket.interval";
+    public static final String TIME_BUCKET_INTERVAL_MS = "fennel.time.bucket.interval.ms";
 
     /**
      * 用于传输审计内容的 topic
@@ -27,4 +27,9 @@ public class ConfigConstants {
      * 客户端的 ip
      */
     public static final String AUDIT_CLIENT_IP = "funnel.audit.client.ip";
+
+    /**
+     * 审核 Topic 所在的 kafka 服务器
+     */
+    public static final String AUDIT_KAFKA_BOOTSTRAPS = "funnel.kafka.bootstraps";
 }

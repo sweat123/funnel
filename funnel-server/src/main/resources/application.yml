@@ -1,7 +1,7 @@
 spring:
   data:
     elasticsearch:
-      cluster-nodes: localhost: 9300
+      cluster-nodes: localhost:9300
   kafka:
     consumer:
       auto-offset-reset: latest
@@ -11,6 +11,10 @@ spring:
         - localhost:9092
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
+      group-id: funnel-test-v1
     listener:
       ack-mode: batch
       concurrency: 1
+funnel:
+  server:
+    audit-center-topic: funnel-audit

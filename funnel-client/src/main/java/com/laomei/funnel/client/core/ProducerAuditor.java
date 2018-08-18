@@ -31,9 +31,9 @@ public class ProducerAuditor<K, V> {
     }
 
     public boolean audit(ProducerRecord<K, V> record) {
-        val currentTimestamp = System.currentTimeMillis();
-        val timeBucket = getTimeBucket(currentTimestamp);
         if (!isTriggerRecord(record)) {
+            val currentTimestamp = System.currentTimeMillis();
+            val timeBucket = getTimeBucket(currentTimestamp);
             timeBucket.setMsgCount(timeBucket.getMsgCount() + 1);
         }
         return needReport.getAndSet(false);
