@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
@@ -26,9 +27,12 @@ public class AuditService {
 
     private final AtomicLong saveDocumentNum;
 
+    private final Random random;
+
     public AuditService(final AuditMetricRepository auditMetricRepository) {
         this.auditMetricRepository = auditMetricRepository;
         this.saveDocumentNum = new AtomicLong(0);
+        this.random = new Random();
     }
 
     public void auditRecords(List<ConsumerRecord<String, byte[]>> records) {
@@ -42,6 +46,7 @@ public class AuditService {
                     }
                 }).filter(Objects::nonNull)
                 .map(MetricUtil::convertAuditMessageDtoToMetric)
+                .peek(metric -> metric.setId(random.nextLong()))
                 .collect(Collectors.toList());
         try {
             auditMetricRepository.saveAll(auditMetrics);
