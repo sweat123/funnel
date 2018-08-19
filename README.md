@@ -66,6 +66,10 @@
 
 使用`grafana`将`elsticsearch`作为数据源，展示某段时间内生产者发送的`record`个数，消费者消费的`record`个数以及相应的延迟数据。
 
+# 注意事项
+
+[NOTICE](./NOTICE.md)
+
 # 其它
 
 如果有任何疑问，可以提`issues`，提出宝贵的意见！
