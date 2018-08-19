@@ -4,17 +4,18 @@ spring:
       cluster-nodes: localhost:9300
   kafka:
     consumer:
-      auto-offset-reset: latest
+      auto-offset-reset: earliest
       max-poll-records: 500
       heartbeat-interval: 3000
       bootstrap-servers:
         - localhost:9092
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
-      group-id: funnel-test-v1
+      group-id: funnel-test-v5
     listener:
       ack-mode: batch
       concurrency: 1
+      type: batch
 funnel:
   server:
-    audit-center-topic: funnel-audit
+    audit-center-topic: audit-center

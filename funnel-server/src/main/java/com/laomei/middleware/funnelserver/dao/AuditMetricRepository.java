@@ -6,6 +6,6 @@ import org.springframework.data.elasticsearch.repository.ElasticsearchRepository
 /**
  * @author laomei on 2018/8/13 23:21
  */
-public interface AuditMetricRepository extends ElasticsearchRepository<AuditMetric, Integer> {
+public interface AuditMetricRepository extends ElasticsearchRepository<AuditMetric, Long> {
 
 }
